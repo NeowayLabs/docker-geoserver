@@ -14,9 +14,6 @@ RUN apt-get install -qqy unzip && \
     cd /opt && \
     ln -s geoserver-2.6.1 geoserver
 
-RUN sed -i "s/digest1\:D9miJH\/hVgfxZJscMafEtbtliG0ROxhLfsznyWfG38X2pda2JOSV4POi55PQI4tw/plain:$ADMIN_PASSWD/g" \
-        /opt/geoserver/data_dir/security/usergroup/default/users.xml
-
 ADD 01_geoserver.sh /etc/my_init.d/01_geoserver.sh
 RUN chmod +x /etc/my_init.d/01_geoserver.sh
 
