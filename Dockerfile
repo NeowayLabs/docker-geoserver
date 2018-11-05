@@ -1,23 +1,25 @@
-FROM neowaylabs/java8:latest
+FROM java:openjdk-8-jre-alpine
 
 MAINTAINER Rodrigo Zanato Tripodi <rodrigo.tripodi@neoway.com.br>
 
 EXPOSE 8080
 
+ARG GEOSERVER_VERSION=2.14.0
+
 ENV JAVA_OPTS -Xms128m -Xmx512m -XX:MaxPermSize=512m
 ENV ADMIN_PASSWD geoserver
 
-RUN apt-get install -qqy unzip && \
-    wget -c http://downloads.sourceforge.net/project/geoserver/GeoServer/2.6.1/geoserver-2.6.1-bin.zip \
-         -O /tmp/geoserver-2.6.1-bin.zip && \
-    unzip /tmp/geoserver-2.6.1-bin.zip -d /opt && \
+RUN apk add --update openssl
+RUN wget -c http://downloads.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/geoserver-${GEOSERVER_VERSION}-bin.zip \
+         -O /tmp/geoserver-${GEOSERVER_VERSION}-bin.zip && \
+    mkdir /opt && \
+    unzip /tmp/geoserver-${GEOSERVER_VERSION}-bin.zip -d /opt && \
     cd /opt && \
-    ln -s geoserver-2.6.1 geoserver
+    ln -s geoserver-${GEOSERVER_VERSION} geoserver && \
+    rm /tmp/geoserver-${GEOSERVER_VERSION}-bin.zip
 
-ADD 01_geoserver.sh /etc/my_init.d/01_geoserver.sh
-RUN chmod +x /etc/my_init.d/01_geoserver.sh
+ADD my_startup.sh /opt/geoserver/bin/my_startup.sh
+RUN chmod +x /opt/geoserver/bin/my_startup.sh
 
-CMD ["/sbin/my_init"]
-
-RUN apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+WORKDIR /opt/geoserver
+CMD ["/opt/geoserver/bin/my_startup.sh"]

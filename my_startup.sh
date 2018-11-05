@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
 if [ -n "${ADMIN_PASSWD}" ]; then
@@ -10,5 +10,4 @@ if [ -n "${ADMIN_PASSWD}" ]; then
 EOF
 fi
 
-cd /opt/geoserver/bin
-./startup.sh
+exec /opt/geoserver/bin/startup.sh
