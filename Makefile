@@ -1,4 +1,4 @@
-IMAGENAME = neowaylabs/geoserver
+IMAGENAME = navenio/geoserver
 
 all: build
 
