@@ -1,4 +1,4 @@
-IMAGENAME = navenio/geoserver
+IMAGENAME = navenio/geoserver:1.0
 
 all: build
 
