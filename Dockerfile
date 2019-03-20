@@ -1,33 +1,39 @@
-FROM java:openjdk-8-jre-alpine
+FROM tomcat:9-jre8
 
-EXPOSE 8080
+#
+# Set GeoServer version and data directory
+#
+ARG GEOSERVER_VERSION=2.14
+ARG PATCH_NUMBER=2
+ENV GEOSERVER_DATA_DIR="/geoserver_data/data"
 
-ARG GEOSERVER_VERSION=2.14.0
-ARG GEOSERVER_PLUGIN_VERSION=2.14.x
+#
+# Download and install GeoServer
+#
+RUN wget --no-check-certificate --progress=bar:force:noscroll \
+    https://sourceforge.net/projects/geoserver/files/GeoServer/${GEOSERVER_VERSION}.${PATCH_NUMBER}/geoserver-${GEOSERVER_VERSION}.${PATCH_NUMBER}-war.zip && \
+    unzip -q geoserver-${GEOSERVER_VERSION}.${PATCH_NUMBER}-war.zip \
+    && mv geoserver.war webapps/ \
+    && rm geoserver-${GEOSERVER_VERSION}.${PATCH_NUMBER}-war.zip \
+    && cd webapps \
+    && unzip -q geoserver.war -d geoserver \
+    && rm geoserver.war \
+    && mkdir -p $GEOSERVER_DATA_DIR
 
-ENV JAVA_OPTS -Xms128m -Xmx512m -XX:MaxPermSize=512m
-ENV ADMIN_PASSWD geoserver
-
-ADD install.sh install.sh
-RUN sh install.sh && rm install.sh
-
-RUN apk add --update openssl
-RUN wget -c http://downloads.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/geoserver-${GEOSERVER_VERSION}-bin.zip \
-         -O /tmp/geoserver-${GEOSERVER_VERSION}-bin.zip && \
-    mkdir /opt && \
-    unzip /tmp/geoserver-${GEOSERVER_VERSION}-bin.zip -d /opt && \
-    cd /opt && \
-    ln -s geoserver-${GEOSERVER_VERSION} geoserver && \
-    rm /tmp/geoserver-${GEOSERVER_VERSION}-bin.zip
 RUN mkdir geoserver-backup-plugin && cd geoserver-backup-plugin && \
-    wget -c https://build.geoserver.org/geoserver/2.14.x/community-2019-03-15/geoserver-2.14-SNAPSHOT-backup-restore-plugin.zip && \
-    unzip geoserver-2.14-SNAPSHOT-backup-restore-plugin.zip && \
-    rm geoserver-2.14-SNAPSHOT-backup-restore-plugin.zip
-RUN cp /geoserver-backup-plugin/* /opt/geoserver/webapps/geoserver/WEB-INF/lib/ && \
-    rm -rf /geoserver-backup-plugin
-ADD my_startup.sh /opt/geoserver/bin/my_startup.sh
-RUN chmod +x /opt/geoserver/bin/my_startup.sh
-WORKDIR /opt/geoserver
-CMD ["sh", "/opt/geoserver/bin/my_startup.sh"]
+    wget -c https://build.geoserver.org/geoserver/${GEOSERVER_VERSION}.x/community-latest/geoserver-${GEOSERVER_VERSION}-SNAPSHOT-backup-restore-plugin.zip && \
+    unzip geoserver-${GEOSERVER_VERSION}-SNAPSHOT-backup-restore-plugin.zip && \
+    rm geoserver-${GEOSERVER_VERSION}-SNAPSHOT-backup-restore-plugin.zip
 
+RUN cp geoserver-backup-plugin/* webapps/geoserver/WEB-INF/lib/ && \
+    rm -rf geoserver-backup-plugin
 
+RUN mkdir geogig-plugin  && cd geogig-plugin  && \
+    wget -c https://build.geoserver.org/geoserver/${GEOSERVER_VERSION}.x/community-latest/geoserver-${GEOSERVER_VERSION}-SNAPSHOT-geogig-plugin.zip  && \
+    unzip geoserver-${GEOSERVER_VERSION}-SNAPSHOT-geogig-plugin.zip  && \
+    rm geoserver-${GEOSERVER_VERSION}-SNAPSHOT-geogig-plugin.zip
+
+RUN cp geogig-plugin/* webapps/geoserver/WEB-INF/lib/ && \
+    rm -rf geogig-plugin
+
+ENV JAVA_OPTS="-Djava.awt.headless=true -XX:MaxPermSize=512m -XX:PermSize=256m -Xms512m -Xmx2048m -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Dfile.encoding=UTF8 -Duser.timezone=GMT -Djavax.servlet.request.encoding=UTF-8 -Djavax.servlet.response.encoding=UTF-8 -Duser.timezone=GMT -Dorg.geotools.shapefile.datetime=true"
