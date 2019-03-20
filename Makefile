@@ -1,4 +1,4 @@
-IMAGENAME = navenio-docker.jfrog.io/geoserver/geoserver_2_14_2:${TAG}
+IMAGENAME = navenio-docker.jfrog.io/geoserver/geoserver_2_14:${TAG}
 
 build:
 	docker build -t $(IMAGENAME) .
