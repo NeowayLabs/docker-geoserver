@@ -1,0 +1,20 @@
+version: '3'
+services:
+  geoserver:
+    build:
+      context: .
+      args:
+        - GEOSERVER_VERSION=2.23
+        - CORS_ENABLED=true
+        - CORS_ALLOWED_METHODS=GET,POST,PUT,HEAD,OPTIONS
+    ports:
+      - 80:8080
+    environment:
+      - INSTALL_EXTENSIONS=true
+      - STABLE_EXTENSIONS=wps,csw
+      - EXTRA_JAVA_OPTS=-Xms1G -Xmx2G
+      - SKIP_DEMO_DATA=true
+      - ROOT_WEBAPP_REDIRECT=true
+        #      - GEOSERVER_DATA_DIR=/opt/geoserver_data
+    volumes:
+      - ./geoserver_data:/opt/geoserver_data/:Z
