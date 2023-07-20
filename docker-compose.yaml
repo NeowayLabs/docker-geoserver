@@ -1,4 +1,4 @@
-version: '3'
+version: '1'
 services:
   geoserver:
     build:
@@ -15,6 +15,7 @@ services:
       - EXTRA_JAVA_OPTS=-Xms1G -Xmx2G
       - SKIP_DEMO_DATA=true
       - ROOT_WEBAPP_REDIRECT=true
-        #      - GEOSERVER_DATA_DIR=/opt/geoserver_data
+      - GEOSERVER_REQUIRE_FILE=/geoserver_data/global.xml
+      - GEOSERVER_DATA_DIR=/geoserver_data
     volumes:
-      - ./geoserver_data:/opt/geoserver_data/:Z
+      - ./data:/geoserver_data/:Z

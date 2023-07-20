@@ -5,7 +5,9 @@ FROM docker.osgeo.org/geoserver:2.23.1
 #
 ARG GEOSERVER_VERSION=2.23
 ARG PATCH_NUMBER=1
-ENV GEOSERVER_DATA_DIR="/geoserver_data/data"
+ARG CORS_ENABLED=true
+ARG CORS_ALLOWED_METHODS=GET,POST,PUT,HEAD,OPTIONS
+ENV GEOSERVER_DATA_DIR="/geoserver_data"
 
 #
 # Download and install GeoServer

@@ -9,13 +9,17 @@
 
 ## Exposed TCP ports
 
-* 8080: REST and Admin interface
+* 80: REST and Admin interface
 
 ## Internal volumes
 
-* /opt/geoserver/data_dir: default application data directory
-* /opt/geoserver/data_dir/styles: styles (sld, xml, images) directory
+* /geoserver_data: default application data directory
 
 ## Plugins installed
 
 * backup/restore
+
+## Docker compose
+
+* Download data directory (e.g. kubectl -n geoserver-prod cp geoserver-prod/geoserver-prod-0:/geoserver_data/data .). Run via docker-compose -f docker-compose.yaml up --build 
+* You can then find the geoserver at localhost/geoserver/
